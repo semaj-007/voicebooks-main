@@ -2809,6 +2809,7 @@
     grid-column: 2;
     align-items: flex-start;
   }
+}
   /* =========================================================
    VOICEBOOKS - GENERAL LEDGER
    ========================================================= */
@@ -2824,7 +2825,6 @@
   width: 100%;
   max-width: 1180px;
   margin: 0 auto;
-}
 }
 /* HEADER */
 

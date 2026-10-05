@@ -34,31 +34,30 @@ function OwnerDashboard({ user }) {
   const summary = dashboardSummary(state.transactions, now);
   const currency = user.business?.currency || 'ZAR';
   const money = amount => new Intl.NumberFormat('en-ZA', { style: 'currency', currency }).format(amount);
-  const date = value => new Intl.DateTimeFormat('en-ZA', { dateStyle: 'medium' }).format(new Date(value));
+  const date = value => new Intl.DateTimeFormat('en-ZA', { dateStyle: 'medium' }).format(new Date(typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value + 'T12:00:00' : value));
   const month = new Intl.DateTimeFormat('en-ZA', { month: 'long', year: 'numeric' }).format(now);
-  if (state.loading) return <div className="dashboard-page"><Spinner large /></div>;
   return (
     <div className="dashboard-page">
       <div className="dashboard-heading-row">
-        <div><h1>Dashboard</h1><p className="dashboard-subtitle">{user.business?.name || 'Your Business'} ? {date(now)}</p></div>
+        <div><p className="dashboard-eyebrow">BUSINESS WORKSPACE</p><h1>Dashboard</h1><p className="dashboard-subtitle">{user.business?.name || 'Your Business'} · {date(now)}</p></div>
         <Link to="/transactions/new" className="dashboard-record-button">Record Transaction</Link>
       </div>
       <Alert type="error">{state.error}</Alert>
-      {state.error ? <button type="button" onClick={() => { setState(previous => ({ ...previous, loading: true })); setAttempt(value => value + 1); }}>Retry dashboard</button> : <>
+      {state.loading ? <div className="dashboard-state"><Spinner large /><p>Loading your dashboard…</p></div> : state.error ? <button type="button" className="btn primary" onClick={() => { setState(previous => ({ ...previous, error: '', loading: true })); setAttempt(value => value + 1); }}>Retry dashboard</button> : <>
         <div className="dashboard-stat-grid">
           {[['Net income', money(summary.income - summary.expenses)], ['Total Income', money(summary.income)], ['Total Expenses', money(summary.expenses)], ['Approved transactions', summary.count]].map(([label, value]) => (
-            <section className="dashboard-stat-card" key={label}><div className="dashboard-stat-top">{label}</div><strong>{value}</strong><small>{month} ? Approved entries</small></section>
+            <section className="dashboard-stat-card" key={label}><h2 className="dashboard-stat-top">{label}</h2><strong>{value}</strong><small>{month} · Approved entries</small></section>
           ))}
         </div>
         <div className="dashboard-content-grid">
           <section className="dashboard-recent-card">
             <div className="dashboard-card-heading"><h2>Recent Transactions</h2><Link to="/transactions">View all</Link></div>
-            {state.transactions.length === 0 && <p>No transactions yet. Record your first transaction to get started.</p>}
+            {state.transactions.length === 0 && <div className="dashboard-empty"><h3>No transactions yet</h3><p>Record your first transaction to get started.</p><Link to="/transactions/new">Record a transaction</Link></div>}
             <div className="dashboard-transaction-list">
               {state.transactions.slice(0, 5).map(transaction => (
                 <div className="dashboard-transaction" key={transaction.id}>
-                  <div className="dashboard-transaction-info"><Link to={'/transactions/' + transaction.id}>{transaction.description}</Link><span>{date(transaction.transactionDate)} ? {transaction.accountCategory || 'Uncategorised'}</span></div>
-                  <div className="dashboard-transaction-amount"><strong>{money(transaction.amount)}</strong><span>{transaction.status.replaceAll('_', ' ')}</span></div>
+                  <div className="dashboard-transaction-info"><Link to={'/transactions/' + transaction.id}>{transaction.description}</Link><span>{date(transaction.transactionDate)} · {transaction.accountCategory || 'Uncategorised'}</span></div>
+                  <div className="dashboard-transaction-amount"><strong className={transaction.type === 'income' ? 'income-text' : ''}>{transaction.type === 'expense' ? '−' : '+'}{money(transaction.amount)}</strong><span className={`status ${transaction.status}`}>{transaction.status.replaceAll('_', ' ')}</span></div>
                 </div>
               ))}
             </div>
@@ -66,9 +65,9 @@ function OwnerDashboard({ user }) {
           <div className="dashboard-right-column">
             <section className="dashboard-side-card">
               <h2>Income vs Expenses</h2>
-              <p>{month} ? Approved entries</p>
+              <p>{month} · Approved entries</p>
               <dl className="dashboard-totals"><dt>Income</dt><dd>{money(summary.income)}</dd><dt>Expenses</dt><dd>{money(summary.expenses)}</dd></dl>
-              <p>{summary.pending} pending review ? {summary.returned} returned</p>
+              <p>{summary.pending} pending review · {summary.returned} returned</p>
               <Link to="/reports">View reports</Link>
             </section>
             <section className="dashboard-side-card">
@@ -85,6 +84,7 @@ function OwnerDashboard({ user }) {
   );
 }
 function AdminDashboard() {
+  const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState({
     loading: true,
     users: [],
@@ -92,35 +92,41 @@ function AdminDashboard() {
   });
 
   useEffect(() => {
+    let active = true;
     api.adminUsers()
       .then((data) =>
-        setState({
+        active && setState({
           loading: false,
           users: data.users,
           error: '',
         })
       )
       .catch((error) =>
-        setState({
+        active && setState({
           loading: false,
           users: [],
           error: error.message,
         })
       );
-  }, []);
+    return () => { active = false; };
+  }, [attempt]);
 
   return (
-    <div className="panels">
+    <div className="dashboard-page admin-dashboard">
+      <header className="dashboard-heading-row"><div><p className="dashboard-eyebrow">ADMIN WORKSPACE</p><h1>Admin Dashboard</h1><p className="dashboard-subtitle">Account directory and registered businesses.</p></div></header>
+      {!state.loading && !state.error && <div className="dashboard-stat-grid dashboard-stat-grid-three">
+        {[['Registered accounts', state.users.length], ['Business accounts', state.users.filter(user => ['business_owner', 'bookkeeper'].includes(user.role)).length], ['Accountants', state.users.filter(user => user.role === 'accountant').length]].map(([label, count]) => <section className="dashboard-stat-card" key={label}><h2 className="dashboard-stat-top">{label}</h2><strong>{count}</strong><small>Registered in VoiceBooks</small></section>)}
+      </div>}
 
-      <Panel wide title="Recent accounts">
+      <Panel wide title="Registered accounts">
 
         <Alert type="error">
           {state.error}
         </Alert>
 
         {state.loading ? (
-          <Spinner />
-        ) : (
+          <div className="dashboard-state"><Spinner large /><p>Loading accounts…</p></div>
+        ) : state.error ? <button type="button" className="btn primary" onClick={() => { setState({ loading: true, users: [], error: '' }); setAttempt(value => value + 1); }}>Retry dashboard</button> : state.users.length === 0 ? <div className="dashboard-empty"><h3>No accounts yet</h3><p>Registered accounts will appear here.</p></div> : (
           <div className="table-wrap">
 
             <table className="table">
@@ -139,7 +145,7 @@ function AdminDashboard() {
                   <tr key={user.id}>
                     <td>{user.first_name} {user.last_name}</td>
                     <td>{user.email}</td>
-                    <td>{user.role}</td>
+                    <td>{user.role.replaceAll('_', ' ')}</td>
                     <td>{user.business_name ?? '-'}</td>
                   </tr>
                 ))}

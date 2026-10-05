@@ -1,13 +1,15 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Dashboard from '../../pages/Dashboard.jsx';
 import { dashboardSummary } from '../../utils/dashboard.js';
 import { api } from '../../api/client.js';
-vi.mock('../../hooks/useAuth.js', () => ({ useAuth: () => ({ user: {
+const { auth } = vi.hoisted(() => ({ auth: { user: {
   id: 1, role: 'business_owner', business: { name: 'My Business', currency: 'ZAR', sageStatus: 'pending' }
-} }) }));
-vi.mock('../../api/client.js', () => ({ api: { getTransactions: vi.fn() } }));
+} } }));
+vi.mock('../../hooks/useAuth.js', () => ({ useAuth: () => auth }));
+vi.mock('../../api/client.js', () => ({ api: { getTransactions: vi.fn(), adminUsers: vi.fn() } }));
+beforeEach(() => { auth.user.role = 'business_owner'; vi.clearAllMocks(); });
 
 describe('Live dashboard', () => {
   it('counts only approved entries from the selected month and sums decimal amounts safely', () => {
@@ -42,5 +44,34 @@ describe('Live dashboard', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Cannot reach the server');
     fireEvent.click(screen.getByRole('button', { name: 'Retry dashboard' }));
     await waitFor(() => expect(screen.getByText(/No transactions yet/)).toBeInTheDocument());
+  });
+  it('keeps the dashboard heading visible while loading', () => {
+    api.getTransactions.mockReturnValue(new Promise(() => {}));
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.queryByText('Net income')).not.toBeInTheDocument();
+  });
+  it('shows admin account counts and readable roles from server data', async () => {
+    auth.user.role = 'admin';
+    api.adminUsers.mockResolvedValue({ users: [
+      { id: 1, first_name: 'Business', last_name: 'Owner', email: 'owner@example.com', role: 'business_owner', business_name: 'Shop' },
+      { id: 2, first_name: 'Account', last_name: 'Reviewer', email: 'reviewer@example.com', role: 'accountant' },
+    ] });
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
+    expect(await screen.findByText('owner@example.com')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Admin Dashboard' })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { name: 'Registered accounts' })[0].parentElement).toHaveTextContent('2');
+    expect(screen.getByText('business owner')).toBeInTheDocument();
+    expect(api.getTransactions).not.toHaveBeenCalled();
+  });
+  it('allows an admin to retry failed account loading', async () => {
+    auth.user.role = 'admin';
+    api.adminUsers.mockRejectedValueOnce(new Error('Accounts unavailable')).mockResolvedValueOnce({ users: [] });
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Accounts unavailable');
+    expect(screen.queryByText('Business accounts')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry dashboard' }));
+    expect(await screen.findByText('No accounts yet')).toBeInTheDocument();
   });
 });

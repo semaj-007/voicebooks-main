@@ -185,8 +185,9 @@ describe('useForm Hook', () => {
   });
 
   it('should not submit multiple times simultaneously', async () => {
-    const slowOnSubmit = vi.fn().mockImplementation(() => 
-      new Promise(resolve => setTimeout(resolve, 100))
+    let finishSubmission;
+    const slowOnSubmit = vi.fn().mockImplementation(() =>
+      new Promise(resolve => { finishSubmission = resolve; })
     );
 
     const { result } = renderHook(() =>
@@ -201,8 +202,9 @@ describe('useForm Hook', () => {
     const mockEvent = { preventDefault: vi.fn(), currentTarget: { querySelector: vi.fn() } };
 
     // First submission
+    let submission;
     act(() => {
-      result.current.handleSubmit(mockEvent);
+      submission = result.current.handleSubmit(mockEvent);
     });
 
     expect(result.current.submitting).toBe(true);
@@ -214,5 +216,10 @@ describe('useForm Hook', () => {
 
     // Should not trigger second submission
     expect(slowOnSubmit).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      finishSubmission();
+      await submission;
+    });
+    expect(result.current.submitting).toBe(false);
   });
 });

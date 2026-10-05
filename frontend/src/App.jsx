@@ -1,6 +1,7 @@
 import {
   Link,
   Navigate,
+  Outlet,
   Route,
   Routes,
 } from 'react-router-dom';
@@ -255,6 +256,7 @@ export default function App() {
             ACCOUNTANT
         ================================================ */}
 
+        <Route element={<ProtectedRoute roles={['accountant']}><Outlet /></ProtectedRoute>}>
         <Route
           path="/accountant"
           element={<AccountantDashboard />}
@@ -289,6 +291,7 @@ export default function App() {
           path="/accountant/profile"
           element={<AccountantProfile />}
         />
+        </Route>
 
       </Route>
 

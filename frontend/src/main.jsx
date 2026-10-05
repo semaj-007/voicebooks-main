@@ -5,6 +5,8 @@ import './index.css'
 import './styles/app.css'
 import App from './App.jsx'
 import './App.css'
+import './styles/accountant.css'
+import './styles/dashboards.css'
 import { AuthProvider } from './context/AuthProvider.jsx'
 import { SignupProvider } from './context/SignupProvider.jsx'
 

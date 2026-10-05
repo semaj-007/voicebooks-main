@@ -100,7 +100,7 @@ export default function AppSidebar() {
 
   const links = isAccountant
     ? accountantLinks
-    : businessOwnerLinks;
+    : rawRole === 'admin' ? [{ to: '/dashboard', icon: '\u2302', label: 'Dashboard' }] : businessOwnerLinks;
 
   async function handleLogout() {
     setSigningOut(true);
@@ -126,7 +126,8 @@ export default function AppSidebar() {
             to={link.to}
             end={
               link.to === '/dashboard' ||
-              link.to === '/accountant'
+              link.to === '/accountant' ||
+              link.to === '/transactions'
             }
             className={({ isActive }) =>
               isActive
