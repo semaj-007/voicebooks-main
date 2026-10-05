@@ -164,7 +164,7 @@ export default function Reports() {
             </p>
           </div>
 
-          <select
+          <select aria-label="Report period"
             className="reports-period"
             value={period}
             onChange={(event) =>

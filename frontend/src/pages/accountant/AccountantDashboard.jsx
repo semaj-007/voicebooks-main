@@ -30,7 +30,7 @@ export default function AccountantDashboard() {
 
     if (loading) {
         return (
-            <div className="loading">
+            <div className="loading" role="status">
                 Loading accountant dashboard...
             </div>
         );
@@ -38,7 +38,7 @@ export default function AccountantDashboard() {
 
     if (error) {
         return (
-            <div className="error-box">
+            <div className="error-box" role="alert">
                 {error}
             </div>
         );
@@ -67,7 +67,7 @@ export default function AccountantDashboard() {
 
             <section className="stats-grid">
 
-                <div
+                <button type="button"
                     className="stat-card"
                     onClick={() =>
                         navigate("/accountant/clients")
@@ -78,7 +78,7 @@ export default function AccountantDashboard() {
                     <strong>
                         {data.clients}
                     </strong>
-                </div>
+                </button>
 
                 <div className="stat-card warning">
                     <span>Pending Reviews</span>
@@ -88,7 +88,7 @@ export default function AccountantDashboard() {
                     </strong>
                 </div>
 
-                <div
+                <button type="button"
                     className="stat-card"
                     onClick={() =>
                         navigate("/accountant/approved")
@@ -99,7 +99,7 @@ export default function AccountantDashboard() {
                     <strong>
                         {data.approvedTransactions}
                     </strong>
-                </div>
+                </button>
 
             </section>
 

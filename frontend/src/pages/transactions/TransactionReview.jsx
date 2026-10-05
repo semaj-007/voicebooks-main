@@ -473,7 +473,7 @@ function TransactionReview() {
             No transaction information was received.
           </p>
 
-          <div className="review-error">
+          <div className="review-error" role="alert">
             Create a transaction before opening
             the review screen.
           </div>
@@ -523,7 +523,7 @@ function TransactionReview() {
           </p>
 
           {errorMessage && (
-            <div className="review-error">
+            <div className="review-error" role="alert">
               {errorMessage}
             </div>
           )}
@@ -1058,7 +1058,7 @@ function TransactionReview() {
 
         {/* Error */}
         {errorMessage && (
-          <div className="review-error">
+          <div className="review-error" role="alert">
             {errorMessage}
           </div>
         )}

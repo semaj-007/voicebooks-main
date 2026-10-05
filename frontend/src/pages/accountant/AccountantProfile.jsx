@@ -27,7 +27,7 @@ export default function AccountantProfile() {
 
     if (loading) {
         return (
-            <div className="loading">
+            <div className="loading" role="status">
                 Loading profile...
             </div>
         );
@@ -35,7 +35,7 @@ export default function AccountantProfile() {
 
     if (error) {
         return (
-            <div className="error-box">
+            <div className="error-box" role="alert">
                 {error}
             </div>
         );
@@ -43,7 +43,7 @@ export default function AccountantProfile() {
 
     if (!profile) {
         return (
-            <div className="error-box">
+            <div className="error-box" role="alert">
                 Profile not found.
             </div>
         );

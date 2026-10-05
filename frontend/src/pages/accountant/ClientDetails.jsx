@@ -37,7 +37,7 @@ export default function ClientDetails() {
 
     if (loading) {
         return (
-            <div className="loading">
+            <div className="loading" role="status">
                 Loading client...
             </div>
         );
@@ -45,7 +45,7 @@ export default function ClientDetails() {
 
     if (error) {
         return (
-            <div className="error-box">
+            <div className="error-box" role="alert">
                 {error}
             </div>
         );

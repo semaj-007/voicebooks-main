@@ -60,7 +60,7 @@ export default function ClientManagement() {
                 <input
                     className="search-input"
                     type="search"
-                    placeholder="Search clients..."
+                    placeholder="Search clients..." aria-label="Search clients"
                     value={search}
                     onChange={(e) =>
                         setSearch(e.target.value)
@@ -68,11 +68,11 @@ export default function ClientManagement() {
                 />
 
                 {loading ? (
-                    <div className="loading">
+                    <div className="loading" role="status">
                         Loading clients...
                     </div>
                 ) : error ? (
-                    <div className="error-box">
+                    <div className="error-box" role="alert">
                         {error}
                     </div>
                 ) : filteredClients.length === 0 ? (

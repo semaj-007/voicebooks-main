@@ -94,7 +94,7 @@ export default function TransactionReview() {
 
     if (loading) {
         return (
-            <div className="loading">
+            <div className="loading" role="status">
                 Loading transaction...
             </div>
         );
@@ -103,7 +103,7 @@ export default function TransactionReview() {
 
     if (!transaction) {
         return (
-            <div className="error-box">
+            <div className="error-box" role="alert">
                 {error || "Transaction not found"}
             </div>
         );
@@ -133,7 +133,7 @@ export default function TransactionReview() {
 
             {error && (
                 <div
-                    className="error-box"
+                    className="error-box" role="alert"
                     role="alert"
                 >
                     {error}
@@ -367,7 +367,7 @@ export default function TransactionReview() {
                         onChange={e =>
                             setReason(e.target.value)
                         }
-                        placeholder="Enter rejection reason..."
+                        placeholder="Enter rejection reason..." aria-label="Reason for returning transaction"
                         rows="5"
                     />
 

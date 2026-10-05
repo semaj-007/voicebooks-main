@@ -4006,3 +4006,33 @@
 }
 
 
+
+/* Shared interaction and responsive accessibility styles. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--accent-ink) !important;
+  outline-offset: 3px;
+}
+.app-sidebar :focus-visible { outline-color: var(--mark) !important; }
+.app-sidebar .sidebar-brand { color: white; text-decoration: none; }
+.skip-link { position: fixed; top: 0.5rem; left: 0.5rem; transform: translateY(-200%); z-index: 100; padding: 0.75rem 1rem; background: var(--surface); color: var(--ink); }
+.skip-link:focus { transform: translateY(0); }
+button:disabled { cursor: wait; }
+.dashboard-totals { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; }
+.dashboard-totals dd { margin: 0; font-weight: 600; }
+.dashboard-recent-card > p, .dashboard-side-card > p { margin: 1rem 0; }
+.dashboard-transaction-info a { font-weight: 600; text-decoration: underline; }
+.dashboard-transaction-info span, .dashboard-transaction-amount span { color: var(--muted); }
+@media (max-width: 650px) {
+  .sidebar-bottom { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; padding: 1rem; }
+  .sidebar-bottom .sidebar-user { flex: 1 1 12rem; margin: 0; }
+  .sidebar-bottom .sidebar-signout { width: auto; min-height: 44px; flex: 0 0 auto; }
+  .sidebar-navigation .sidebar-link { min-height: 44px; }
+  .sidebar-bottom .alert { width: 100%; }
+  .dashboard-transaction { flex-wrap: wrap; }
+  .dashboard-transaction-info { min-width: 0; overflow-wrap: anywhere; }
+}
+
+body { font-family: var(--font-body); color: var(--ink); background: var(--paper); }
+.sidebar-user-details span { color: #d2e7db; }
+
+button.stat-card { text-align: left; font: inherit; min-height: 44px; }

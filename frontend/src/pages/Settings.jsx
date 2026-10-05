@@ -171,13 +171,13 @@ export default function Settings() {
         {/* MESSAGES */}
 
         {message && (
-          <div className="settings-message settings-success">
+          <div className="settings-message settings-success" role="status">
             {message}
           </div>
         )}
 
         {error && (
-          <div className="settings-message settings-error">
+          <div className="settings-message settings-error" role="alert">
             {error}
           </div>
         )}

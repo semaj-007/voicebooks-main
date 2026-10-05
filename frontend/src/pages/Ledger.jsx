@@ -189,7 +189,7 @@ export default function Ledger() {
                 }
               />
 
-              <select
+              <select aria-label="Filter by account"
                 value={accountFilter}
                 onChange={(event) =>
                   setAccountFilter(event.target.value)

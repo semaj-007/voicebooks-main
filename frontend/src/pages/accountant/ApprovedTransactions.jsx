@@ -27,7 +27,7 @@ export default function ApprovedTransactions() {
 
     if (loading) {
         return (
-            <div className="loading">
+            <div className="loading" role="status">
                 Loading approved transactions...
             </div>
         );
@@ -35,7 +35,7 @@ export default function ApprovedTransactions() {
 
     if (error) {
         return (
-            <div className="error-box">
+            <div className="error-box" role="alert">
                 {error}
             </div>
         );

@@ -27,7 +27,7 @@ export default function ReturnedTransactions() {
 
     if (loading) {
         return (
-            <div className="loading">
+            <div className="loading" role="status">
                 Loading returned transactions...
             </div>
         );
@@ -35,7 +35,7 @@ export default function ReturnedTransactions() {
 
     if (error) {
         return (
-            <div className="error-box">
+            <div className="error-box" role="alert">
                 {error}
             </div>
         );
