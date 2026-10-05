@@ -18,6 +18,7 @@ function TransactionReview() {
   const [transaction, setTransaction] = useState({
     originalTranscript:
       receivedTransaction.originalTranscript || null,
+    notes: receivedTransaction.notes || null,
 
     type:
       receivedTransaction.type || "",
@@ -374,9 +375,11 @@ function TransactionReview() {
       };
 
       const response = await fetch(
-        "http://localhost:3715/api/transactions",
+        receivedTransaction.status === 'returned'
+          ? `/api/transactions/${encodeURIComponent(receivedTransaction.id)}`
+          : '/api/transactions',
         {
-          method: "POST",
+          method: receivedTransaction.status === 'returned' ? 'PUT' : 'POST',
 
           headers: {
             "Content-Type":
@@ -398,7 +401,7 @@ function TransactionReview() {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
+          (data.errors ? Object.values(data.errors).join(' ') : data.message) ||
             "The transaction could not be posted."
         );
       }
@@ -416,7 +419,7 @@ function TransactionReview() {
 
         status:
           data.transaction?.status ||
-          "Posted",
+          "pending_review",
       };
 
       // Successful posting now leaves the Review screen.
@@ -806,7 +809,7 @@ function TransactionReview() {
 
         <p className="transaction-intro">
           Review the details and accounting
-          entry before posting this transaction.
+          entry before submitting this transaction.
         </p>
 
         {/* Voice transcript */}
@@ -1079,8 +1082,8 @@ function TransactionReview() {
             disabled={isPosting}
           >
             {isPosting
-              ? "Posting..."
-              : "Confirm & Post"}
+              ? "Submitting..."
+              : "Submit for Review"}
           </button>
 
         </div>

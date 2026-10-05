@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/client.js";
+import AccountantAssignment from '../components/AccountantAssignment.jsx';
 
 export default function Settings() {
   const [form, setForm] = useState({
@@ -422,6 +423,8 @@ export default function Settings() {
           </div>
 
         </form>
+
+        <AccountantAssignment />
 
       </section>
     </main>

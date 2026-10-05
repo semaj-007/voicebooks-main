@@ -14,7 +14,7 @@ export default function Ledger() {
         setError("");
 
         const response = await fetch(
-          "http://localhost:3715/api/transactions"
+          "/api/transactions?status=approved"
         );
 
         const data = await response.json();

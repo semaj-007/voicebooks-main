@@ -27,24 +27,22 @@ export default function TransactionReview() {
         useState("");
 
     useEffect(() => {
-        loadTransaction();
-    }, [transactionId]);
-
-    async function loadTransaction() {
-        try {
-            const result =
-                await accountantApi
-                    .transactionReview(
-                        transactionId
-                    );
-
-            setTransaction(result.data);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+        let active = true;
+        async function loadTransaction() {
+            setLoading(true);
+            setError('');
+            try {
+                const result = await accountantApi.transactionReview(transactionId);
+                if (active) setTransaction(result.data);
+            } catch (err) {
+                if (active) setError(err.message);
+            } finally {
+                if (active) setLoading(false);
+            }
         }
-    }
+        loadTransaction();
+        return () => { active = false; };
+    }, [transactionId]);
 
 
     async function approve() {
@@ -212,8 +210,8 @@ export default function TransactionReview() {
                         </p>
                     </div>
 
-                    <span className="status pending_review">
-                        Pending Review
+                    <span className={`status ${transaction.status}`}>
+                        {transaction.status.replaceAll('_', ' ')}
                     </span>
 
                 </div>
@@ -333,7 +331,7 @@ export default function TransactionReview() {
                         onClick={() =>
                             setShowReject(true)
                         }
-                        disabled={processing}
+                        disabled={processing || transaction.status !== 'pending_review'}
                     >
                         Return Transaction
                     </button>
@@ -341,7 +339,7 @@ export default function TransactionReview() {
                     <button
                         className="btn-primary"
                         onClick={approve}
-                        disabled={processing}
+                        disabled={processing || transaction.status !== 'pending_review'}
                     >
                         {processing
                             ? "Approving..."
@@ -387,7 +385,7 @@ export default function TransactionReview() {
                         <button
                             className="btn-danger"
                             onClick={reject}
-                            disabled={processing}
+                            disabled={processing || transaction.status !== 'pending_review'}
                         >
                             {processing
                                 ? "Returning..."

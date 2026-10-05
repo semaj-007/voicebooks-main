@@ -20,7 +20,7 @@ const config = {
   cookieSecure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === 'true' : isProd,
   bcryptRounds: Number(process.env.BCRYPT_ROUNDS) || 12,
   resetTokenTtlMinutes: Number(process.env.RESET_TOKEN_TTL_MINUTES) || 30,
-  databaseFile: path.resolve(process.env.DATABASE_FILE || './data/voicebooks.db'),
+  databaseFile: process.env.DATABASE_FILE === ':memory:' ? ':memory:' : path.resolve(process.env.DATABASE_FILE || './data/voicebooks.db'),
   mail: {
     host: process.env.SMTP_HOST || '',
     port: Number(process.env.SMTP_PORT) || 587,
