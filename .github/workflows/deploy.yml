@@ -1,0 +1,99 @@
+name: Deploy Application
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run All Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [24.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install and test backend
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:coverage
+
+      - name: Install and test frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:coverage
+
+  deploy-backend:
+    name: Deploy Backend
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci --production
+
+      - name: Deploy to production
+        working-directory: backend
+        run: |
+          echo "Backend deployment would run here"
+          echo "Add your specific deployment commands for your hosting provider"
+        env:
+          NODE_ENV: production
+
+  deploy-frontend:
+    name: Deploy Frontend
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Deploy to production
+        working-directory: frontend
+        run: |
+          echo "Frontend deployment would run here"
+          echo "Add your specific deployment commands for your hosting provider"
+        env:
+          NODE_ENV: production
