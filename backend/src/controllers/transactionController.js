@@ -17,7 +17,7 @@ async function processTransaction(req, res, next) {
     } });
   } catch (error) { next(error); }
 }
-function confirmTransaction(req, res, next) {
+async function confirmTransaction(req, res, next) {
   try {
     // Validation strips client-supplied IDs, ownership and status.
     const transaction = {
@@ -25,30 +25,30 @@ function confirmTransaction(req, res, next) {
       journalEntries: createJournalEntries(req.body), confirmedAt: new Date().toISOString()
     };
     const result = req.params.id
-      ? storage.resubmitTransaction(req.params.id, transaction, req.user.id)
-      : storage.saveTransaction(transaction, req.user.id);
+      ? await storage.resubmitTransaction(req.params.id, transaction, req.user.id)
+      : await storage.saveTransaction(transaction, req.user.id);
     res.status(201).json({ status: 'success', message: 'Transaction submitted for accountant review.', ...result });
   } catch (error) { next(error); }
 }
-function getTransactions(req, res) {
-  const transactions = storage.getTransactions(req.user.id, req.query.status === 'approved');
+async function getTransactions(req, res) {
+  const transactions = await storage.getTransactions(req.user.id, req.query.status === 'approved');
   res.json({ status: 'success', count: transactions.length, transactions });
 }
-function getTransactionById(req, res) {
-  const transaction = storage.getTransactionById(req.params.id, req.user.id);
+async function getTransactionById(req, res) {
+  const transaction = await storage.getTransactionById(req.params.id, req.user.id);
   if (!transaction) return res.status(404).json({ message: 'Transaction not found.' });
-  const auditLog = storage.getAuditLog(req.user.id).filter(event => event.transactionId === transaction.id);
+  const auditLog = (await storage.getAuditLog(req.user.id)).filter(event => event.transactionId === transaction.id);
   res.json({ status: 'success', transaction, auditLog });
 }
-function getAuditLog(req, res) {
-  const auditLog = storage.getAuditLog(req.user.id);
+async function getAuditLog(req, res) {
+  const auditLog = await storage.getAuditLog(req.user.id);
   res.json({ status: 'success', count: auditLog.length, auditLog });
 }
-function getAssignment(req, res) {
-  res.json({ accountant: storage.getAssignment(req.user.id) });
+async function getAssignment(req, res) {
+  res.json({ accountant: await storage.getAssignment(req.user.id) });
 }
-function setAssignment(req, res, next) {
-  try { res.json({ accountant: storage.setAssignment(req.user.id, req.body.email) }); }
+async function setAssignment(req, res, next) {
+  try { res.json({ accountant: await storage.setAssignment(req.user.id, req.body.email) }); }
   catch (error) { next(error); }
 }
 module.exports = { processTransaction, confirmTransaction, getTransactions, getTransactionById, getAuditLog, getAssignment, setAssignment };

@@ -8,6 +8,9 @@ const { createJournalEntries } = require('../src/services/journalService');
 const storage = require('../src/services/transactionStorageService');
 
 function importTransactions(records, ownerEmail, auditRecords = []) {
+  if (require('../src/config').config.databaseProvider !== 'sqlite') {
+    throw new Error('Legacy JSON import supports SQLite only. Use DATABASE_PROVIDER=sqlite.');
+  }
   if (!Array.isArray(records) || !Array.isArray(auditRecords)) throw new Error('Source files must contain JSON arrays.');
   const owner = db.prepare(`SELECT u.id FROM users u JOIN roles r ON r.id = u.role_id
     WHERE u.email = ? AND r.name IN ('business_owner', 'bookkeeper')`).get(ownerEmail);

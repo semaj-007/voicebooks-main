@@ -9,6 +9,9 @@ POE Task 2 - Code and Implementation
 
 ## Run locally
 
+Firebase SQL Connect/PostgreSQL is also supported. See [Firebase setup](docs/firebase-sql.md)
+for emulator testing and connection to a future Firebase project.
+
 Use Node.js 24. Install dependencies with `npm ci` in both `backend` and `frontend`.
 Run `npm run dev` in each directory. On Windows PowerShell, use `npm.cmd` if execution policy blocks `npm`.
 Frontend: http://localhost:5173. API: http://localhost:3715.
